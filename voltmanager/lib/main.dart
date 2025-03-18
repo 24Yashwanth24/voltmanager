@@ -3,6 +3,7 @@ import 'helpers/database_helper.dart';
 
 void main() => runApp(MyApp());
 
+//my app
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -116,7 +117,9 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+//my app
 
+// addcomp page
 class AddComp extends StatefulWidget {
   const AddComp({super.key});
 
@@ -304,23 +307,9 @@ class AddCompState extends State<AddComp> {
     );
   }
 }
+//addcomp page
 
-class UseComp extends StatelessWidget {
-  const UseComp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Text('Sorryii, this page is not developed yet'));
-  }
-}
-
-class CalcComp extends StatelessWidget {
-  const CalcComp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Text('Sorryii, this page is not developed yet'));
-  }
-}
-
+//viewcomp page
 class ViewComp extends StatefulWidget {
   const ViewComp({super.key});
   @override
@@ -358,5 +347,25 @@ class ViewCompState extends State<ViewComp> {
         },
       ),
     );
+  }
+}
+// viewcomp page
+
+//usecomp page
+class UseComp extends StatelessWidget {
+  const UseComp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: Text('Sorry, this page is not developed yet'));
+  }
+}
+//usecomp page
+
+//calccomp page
+class CalcComp extends StatelessWidget {
+  const CalcComp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: Text('Sorryii, this page is not developed yet'));
   }
 }
