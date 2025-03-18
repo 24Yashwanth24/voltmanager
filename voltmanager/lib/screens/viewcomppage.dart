@@ -33,7 +33,7 @@ class OutputPageState extends State<OutputPage> {
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(dataList[index]['valu']),
-            subtitle: Text('Age: ${dataList[index]['quanty']}'),
+            subtitle: Text('Quantity: ${dataList[index]['quanty']}'),
           );
         },
       ),

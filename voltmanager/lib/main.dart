@@ -248,7 +248,13 @@ class AddCompState extends State<AddComp> {
                               child: Text(value),
                             );
                           }).toList(),
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        // Handle value change
+                        setState(() {
+                          // Update the selected value
+                          // You might want to store this value and use it later
+                        });
+                      },
                     ),
                   ),
                 ],
@@ -299,16 +305,6 @@ class AddCompState extends State<AddComp> {
   }
 }
 
-class ViewComp extends StatelessWidget {
-  const ViewComp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(body: Text('Sorry, this page is not developed yet')),
-    );
-  }
-}
-
 class UseComp extends StatelessWidget {
   const UseComp({super.key});
   @override
@@ -322,5 +318,45 @@ class CalcComp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: Text('Sorryii, this page is not developed yet'));
+  }
+}
+
+class ViewComp extends StatefulWidget {
+  const ViewComp({super.key});
+  @override
+  ViewCompState createState() => ViewCompState();
+}
+
+class ViewCompState extends State<ViewComp> {
+  List<Map<String, dynamic>> dataList = [];
+
+  void fetchData() async {
+    var dbHelper = DatabaseHelper.instance;
+    List<Map<String, dynamic>> rows = await dbHelper.fetchAllRows();
+    setState(() {
+      dataList = rows;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Saved Data')),
+      body: ListView.builder(
+        itemCount: dataList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(dataList[index]['valu']),
+            subtitle: Text('Quantity: ${dataList[index]['quanty']}'),
+          );
+        },
+      ),
+    );
   }
 }
