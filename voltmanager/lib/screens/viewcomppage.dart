@@ -25,6 +25,11 @@ class OutputPageState extends State<OutputPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Saved Data')),

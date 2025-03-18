@@ -23,10 +23,11 @@ class DatabaseHelper {
         return db.execute('''
           CREATE TABLE my_table (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            valu TEXT NOT NULL,
-            type TEXT NOT NULL,
+            comp TEXT NOT NULL,
+            type TEXT ,
+            valu INTEGER NOT NULL,
+            unit TEXT NOT NULL,
             quanty INTEGER NOT NULL
-
           )
         ''');
       },
@@ -41,5 +42,31 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> fetchAllRows() async {
     Database? db = await database;
     return await db!.query('my_table');
+  }
+
+  // New Method: Check if a row exists with specific criteria
+  Future<Map<String, dynamic>?> queryRowWhere(
+    Map<String, dynamic> criteria,
+  ) async {
+    final db = await database;
+    String whereClause = criteria.keys.map((key) => "$key = ?").join(" AND ");
+    List<dynamic> whereArgs = criteria.values.toList();
+    var result = await db!.query(
+      'my_table',
+      where: whereClause,
+      whereArgs: whereArgs,
+    );
+    return result.isNotEmpty ? result.first : null;
+  }
+
+  // New Method: Update an existing row
+  Future<int> updateRow(Map<String, dynamic> row) async {
+    final db = await database;
+    return await db!.update(
+      'my_table',
+      row,
+      where: "id = ?",
+      whereArgs: [row['id']], // Ensure you're passing the row ID
+    );
   }
 }

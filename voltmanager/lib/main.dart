@@ -135,14 +135,43 @@ class AddCompState extends State<AddComp> {
   String? _selectedComp;
   bool? _componentTypeornot;
   String? _selectedType;
+  int _selectedValue = 0;
+  String? _selectedUnit;
   List<String> units = [];
   void _saveData(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      String val = _selectedComp!;
+      String cmp = _selectedComp!;
       String typ = _selectedType!;
+      int val = _selectedValue;
       int qty = int.parse(quantityController.text);
+      String unt = _selectedUnit!;
       var dbHelper = DatabaseHelper.instance;
-      await dbHelper.insert({'valu': val, 'type': typ, 'quanty': qty});
+
+      // Check if the component already exists
+      var existingRow = await dbHelper.queryRowWhere({
+        'comp': cmp,
+        'type': typ,
+        'valu': val,
+        'unit': unt,
+      });
+
+      if (existingRow != null) {
+        // If exists, update the quantity
+        int newQty = existingRow['quanty'] + qty;
+        await dbHelper.updateRow({
+          'id': existingRow['id'], // Assuming your table has an ID column
+          'quanty': newQty,
+        });
+      } else {
+        // If it doesn't exist, insert a new row
+        await dbHelper.insert({
+          'comp': cmp,
+          'type': typ,
+          'valu': val,
+          'unit': unt,
+          'quanty': qty,
+        });
+      }
     }
   }
 
@@ -240,6 +269,7 @@ class AddCompState extends State<AddComp> {
                   labelText: 'Range',
                   hintText: 'Enter component Range',
                 ),
+
                 validator: (value) {
                   return null;
                 },
@@ -254,6 +284,11 @@ class AddCompState extends State<AddComp> {
                         labelText: 'Value',
                         hintText: 'Component Value',
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedValue = int.parse(value);
+                        });
+                      },
                       validator: (value) {
                         return null;
                       },
@@ -261,7 +296,7 @@ class AddCompState extends State<AddComp> {
                       controller: valueController,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 10, width: 10),
 
                   Expanded(
                     child: DropdownButtonFormField<String>(
@@ -276,7 +311,8 @@ class AddCompState extends State<AddComp> {
                         // Handle value change
                         setState(() {
                           // Update the selected value
-                          // You might want to store this value and use it later
+                          _selectedUnit =
+                              value; // You might want to store this value and use it later
                         });
                       },
                     ),
@@ -340,18 +376,18 @@ class ViewComp extends StatefulWidget {
 class ViewCompState extends State<ViewComp> {
   List<Map<String, dynamic>> dataList = [];
 
-  void fetchData() async {
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
     var dbHelper = DatabaseHelper.instance;
     List<Map<String, dynamic>> rows = await dbHelper.fetchAllRows();
     setState(() {
       dataList = rows;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchData();
   }
 
   @override
@@ -362,8 +398,23 @@ class ViewCompState extends State<ViewComp> {
         itemCount: dataList.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(dataList[index]['valu']),
-            subtitle: Text('Quantity: ${dataList[index]['quanty']}'),
+            title: Row(
+              children: [
+                Text('${dataList[index]['comp']}(${dataList[index]['type']})'),
+                SizedBox(width: 10),
+                Text(
+                  '${dataList[index]['quanty']}',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+            subtitle: Text(
+              '${dataList[index]['valu']}${dataList[index]['unit']}',
+            ),
           );
         },
       ),
