@@ -132,14 +132,15 @@ class AddCompState extends State<AddComp> {
   final rangeController = TextEditingController();
   final valueController = TextEditingController();
   final quantityController = TextEditingController();
-  String? _selectedValue;
+  String? _selectedComp;
+  bool? _componentTypeornot;
   String? _selectedType;
+  List<String> units = [];
   void _saveData(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      String val = _selectedValue!;
+      String val = _selectedComp!;
       String typ = _selectedType!;
       int qty = int.parse(quantityController.text);
-
       var dbHelper = DatabaseHelper.instance;
       await dbHelper.insert({'valu': val, 'type': typ, 'quanty': qty});
     }
@@ -147,6 +148,15 @@ class AddCompState extends State<AddComp> {
 
   @override
   Widget build(BuildContext context) {
+    if (_selectedComp == 'Resistor') {
+      units = ['mΩ', 'Ω', 'kΩ', 'MΩ'];
+    } else if (_selectedComp == 'Capacitor') {
+      units = ['pF', 'nF', 'μF', 'mF'];
+    } else if (_selectedComp == 'Inductor') {
+      units = ['μH', 'mH', 'H'];
+    } else {
+      units = ['Unknown'];
+    }
     return Scaffold(
       // Add Scaffold here
       appBar: AppBar(title: Text('Add Component')),
@@ -184,7 +194,16 @@ class AddCompState extends State<AddComp> {
                       );
                     }).toList(),
                 onChanged: (value) {
-                  _selectedValue = value;
+                  setState(() {
+                    // Handle value change
+                    _selectedComp = value;
+                    _componentTypeornot = [
+                      'Resistor',
+                      'Capacitor',
+                      'Inductor',
+                      'IC',
+                    ].contains(value);
+                  });
                 },
                 validator: (value) {
                   if (value == null) {
@@ -194,26 +213,27 @@ class AddCompState extends State<AddComp> {
                 },
               ),
               SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'Component Type'),
-                items:
-                    ['SMD', 'Through-Hole', 'Others'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  // Handle value change
-                  _selectedType = value;
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please declare component Type';
-                  }
-                  return null;
-                },
-              ),
+              if (_componentTypeornot == true)
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(labelText: 'Component Type'),
+                  items:
+                      ['SMD', 'Through-Hole'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    // Handle value change
+                    _selectedType = value;
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please declare component Type';
+                    }
+                    return null;
+                  },
+                ),
               SizedBox(height: 20),
               TextFormField(
                 decoration: InputDecoration(
@@ -242,10 +262,11 @@ class AddCompState extends State<AddComp> {
                     ),
                   ),
                   SizedBox(height: 10),
+
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       items:
-                          ['k', 'm', 'u', 'n', 'M'].map((String value) {
+                          units.map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
@@ -356,7 +377,7 @@ class UseComp extends StatelessWidget {
   const UseComp({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Text('Sorry, this page is not developed yet'));
+    return Scaffold(body: Text('Sorryii, this page is not developed yet'));
   }
 }
 //usecomp page
