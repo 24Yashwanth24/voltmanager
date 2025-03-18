@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'helpers/database_helper.dart';
 
 void main() => runApp(MyApp());
 
@@ -128,6 +129,18 @@ class AddCompState extends State<AddComp> {
   final rangeController = TextEditingController();
   final valueController = TextEditingController();
   final quantityController = TextEditingController();
+  String? _selectedValue;
+  String? _selectedType;
+  void _saveData(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      String val = _selectedValue!;
+      String typ = _selectedType!;
+      int qty = int.parse(quantityController.text);
+
+      var dbHelper = DatabaseHelper.instance;
+      await dbHelper.insert({'valu': val, 'type': typ, 'quanty': qty});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +181,7 @@ class AddCompState extends State<AddComp> {
                       );
                     }).toList(),
                 onChanged: (value) {
-                  // Handle value change
+                  _selectedValue = value;
                 },
                 validator: (value) {
                   if (value == null) {
@@ -189,6 +202,7 @@ class AddCompState extends State<AddComp> {
                     }).toList(),
                 onChanged: (value) {
                   // Handle value change
+                  _selectedType = value;
                 },
                 validator: (value) {
                   if (value == null) {
@@ -266,6 +280,8 @@ class AddCompState extends State<AddComp> {
                         ),
                       ),
                     );
+                    //send the data to db
+                    _saveData(context);
                     // reset the form
                     _formKey.currentState!.reset();
                     rangeController.clear();
