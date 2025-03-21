@@ -184,6 +184,7 @@ class AddCompState extends State<AddComp> {
     } else if (_selectedComp == 'Inductor') {
       units = ['μH', 'mH', 'H'];
     } else {
+      _selectedUnit = 'Unknown';
       units = ['Unknown'];
     }
     return Scaffold(
@@ -235,9 +236,6 @@ class AddCompState extends State<AddComp> {
                   });
                 },
                 validator: (value) {
-                  if (value == null) {
-                    return 'Please select a component';
-                  }
                   return null;
                 },
               ),
@@ -390,6 +388,14 @@ class ViewCompState extends State<ViewComp> {
     });
   }
 
+  Future<void> deleteData(int id) async {
+    var dbHelper = DatabaseHelper.instance;
+    await dbHelper.database.then((db) {
+      db!.delete('my_table', where: 'id = ?', whereArgs: [id]);
+    });
+    fetchData(); // Refresh the list after deletion
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -400,7 +406,13 @@ class ViewCompState extends State<ViewComp> {
           return ListTile(
             title: Row(
               children: [
-                Text('${dataList[index]['comp']}(${dataList[index]['type']})'),
+                Expanded(
+                  child: Text(
+                    '${dataList[index]['comp']}(${dataList[index]['type']})',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
                 SizedBox(width: 10),
                 Text(
                   '${dataList[index]['quanty']}',
@@ -415,12 +427,53 @@ class ViewCompState extends State<ViewComp> {
             subtitle: Text(
               '${dataList[index]['valu']}${dataList[index]['unit']}',
             ),
+            trailing: IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () async {
+                // Confirm delete action
+                bool? confirmDelete = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Delete Confirmation'),
+                      content: Text(
+                        'Are you sure you want to delete this item?',
+                      ),
+                      actions: [
+                        TextButton(
+                          child: Text('Cancel'),
+                          onPressed: () {
+                            Navigator.of(context).pop(false); // Cancel delete
+                          },
+                        ),
+                        TextButton(
+                          child: Text('Delete'),
+                          onPressed: () {
+                            Navigator.of(context).pop(true); // Confirm delete
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (confirmDelete == true) {
+                  // Perform delete
+                  int id = dataList[index]['id'];
+                  await deleteData(id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Item deleted successfully')),
+                  );
+                }
+              },
+            ),
           );
         },
       ),
     );
   }
 }
+
 // viewcomp page
 
 //usecomp page
@@ -431,7 +484,6 @@ class UseComp extends StatelessWidget {
     return Scaffold(body: Text('Sorryii, this page is not developed yet'));
   }
 }
-//usecomp page
 
 //calccomp page
 class CalcComp extends StatelessWidget {
