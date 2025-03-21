@@ -24,7 +24,7 @@ class DatabaseHelper {
           CREATE TABLE my_table (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             comp TEXT NOT NULL,
-            type TEXT ,
+            type TEXT,
             valu INTEGER NOT NULL,
             unit TEXT NOT NULL,
             quanty INTEGER NOT NULL
